@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        maven {
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
+        }
+    }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+    id 'com.qixalite.spongestart2' version '3.1.0'
+    id 'net.minecrell.vanillagradle.server' version '2.2-3'
+    id 'idea'
+}
+
+spongestart {
+    minecraft '1.12.2'
+}
+
+minecraft {
+    version = '1.12.2'
+    mappings = 'snapshot_20180308'
+}
+
+group = pluginGroup
+version = pluginVersion
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:7.0.0'
+    compileOnly "org.projectlombok:lombok:1.16.10"
+    shade 'com.j256.ormlite:ormlite-jdbc:4.48'
+    shade 'com.j256.ormlite:ormlite-core:4.48'
+}
+
+jar {
+    includeEmptyDirs = false
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)){
+            exclude 'META-INF', 'META-INF/**'
+        }
+    }
+}
+
+sponge.plugin.id = pluginId
