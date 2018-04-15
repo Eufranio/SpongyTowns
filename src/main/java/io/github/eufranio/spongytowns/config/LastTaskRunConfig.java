@@ -12,7 +12,6 @@ import java.time.Instant;
  * Created by Frani on 19/03/2018.
  */
 @Getter
-@Singleton
 @ConfigSerializable
 public class LastTaskRunConfig {
 

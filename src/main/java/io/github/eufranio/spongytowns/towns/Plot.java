@@ -75,6 +75,9 @@ public class Plot extends BaseDaoEnabled<Plot, UUID> implements Identifiable, Cl
     @DatabaseField
     public String displayName;
 
+    @DatabaseField
+    public String team;
+
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     public ArrayList<UUID> members;
 

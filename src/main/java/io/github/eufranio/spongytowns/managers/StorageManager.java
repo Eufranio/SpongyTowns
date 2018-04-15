@@ -70,6 +70,7 @@ public class StorageManager {
             TableUtils.createTableIfNotExists(src, Transaction.class);
 
             this.loadTowns();
+            this.loadTransactions();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -142,7 +143,7 @@ public class StorageManager {
             if (t.getDao().idExists(t.getUniqueId())) {
                 t.update();
             } else {
-                t.update();
+                t.create();
             }
             SpongyTowns.getManager().getTransactions().add(t);
         } catch (SQLException e) {
@@ -203,6 +204,7 @@ public class StorageManager {
                     r.setDao(this.residents);
                 } else {
                     r = new Resident();
+                    r.setId(uuid);
                     r.setPlots(new ArrayList<>());
                     r.setTowns(new ArrayList<>());
                     r.setCustomData(new HashMap<>());
@@ -233,7 +235,13 @@ public class StorageManager {
     }
 
     private void loadTransactions() {
-
+        try {
+            for (Transaction t : this.transactions.queryForAll()) {
+                SpongyTowns.getManager().getTransactions().add(t);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

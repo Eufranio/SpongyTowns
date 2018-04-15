@@ -5,14 +5,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.TownMessages;
-import io.github.eufranio.spongytowns.display.Visual;
+import io.github.eufranio.spongytowns.permission.Options;
+import io.github.eufranio.spongytowns.towns.Town;
 import io.github.eufranio.spongytowns.util.InfoBuilder;
 import io.github.eufranio.spongytowns.util.Util;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
@@ -21,6 +23,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -58,6 +61,8 @@ public interface Claim extends Persistant, Permissible, Bank, Purgeable {
     void setName(String name);
 
     String getName();
+
+    String getTeam();
 
     ClaimBlock claim(Location<World> location);
 
@@ -135,5 +140,34 @@ public interface Claim extends Persistant, Permissible, Bank, Purgeable {
     boolean isAdmin();
 
     void setAdmin(boolean admin);
+
+    default int getTax() {
+        Options.OptionEntry<Integer> entry = this instanceof Town ? Options.DAILY_TAX_TOWN : Options.DAILY_TAX_PLOT;
+        int value = Util.getIntOption(this.getOwnerUser(), entry);
+
+        Options.OptionEntry<Integer> perBlockCost = this instanceof Town ? Options.DAILY_TAX_TOWNCLAIM : Options.DAILY_TAX_PLOTCLAIM;
+        value = value + (this.getBlocks().size() > 0 ? (this.getBlocks().size() * Util.getIntOption(this.getOwnerUser(), perBlockCost)) : 0);
+
+        Options.OptionEntry<Integer> perResident = Options.DAILY_TAX_RESIDENT;
+        value = value + (this.getMembers().size() > 0 ? (this.getMembers().size() * Util.getIntOption(this.getOwnerUser(), perResident)) : 0);
+
+        return value;
+    }
+
+    default Optional<ClaimBlock> getBlockAt(Location<World> location) {
+        return this.getBlocks().stream()
+                .filter(cb -> cb.getLocation().equals(location.getChunkPosition()))
+                .findFirst();
+    }
+
+    default boolean hasPermission(User user) {
+        return user.getUniqueId().equals(this.getOwner()) || this.getMembers().contains(user.getUniqueId());
+    }
+
+    default void sendDenyMessage(TextTemplate template, Player player) {
+        player.sendMessage(template.apply(ImmutableMap.of(
+                "claim", this.getInfoHover()
+        )).toText());
+    }
 
 }

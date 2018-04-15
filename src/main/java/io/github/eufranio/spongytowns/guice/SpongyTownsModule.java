@@ -2,15 +2,13 @@ package io.github.eufranio.spongytowns.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.config.LastTaskRunConfig;
+import io.github.eufranio.spongytowns.display.*;
 import io.github.eufranio.spongytowns.managers.ConfigManager;
 import io.github.eufranio.spongytowns.config.MainConfig;
 import io.github.eufranio.spongytowns.config.MessagesCategory;
-import io.github.eufranio.spongytowns.display.BankMessages;
-import io.github.eufranio.spongytowns.display.EconomyMessages;
-import io.github.eufranio.spongytowns.display.PermissionMessages;
-import io.github.eufranio.spongytowns.display.TownMessages;
 import io.github.eufranio.spongytowns.managers.StorageManager;
 
 /**
@@ -23,32 +21,37 @@ public class SpongyTownsModule extends AbstractModule {
         // Empty impl of AbstractModule, needed by Guice
     }
 
-    @Provides
+    @Provides @Singleton
     public BankMessages provideBankMessages() {
         return SpongyTowns.getMessages().getBank();
     }
 
-    @Provides
+    @Provides @Singleton
     public EconomyMessages provideEconomyMessages() {
         return SpongyTowns.getMessages().getEconomy();
     }
 
-    @Provides
+    @Provides @Singleton
     public PermissionMessages providePermissionMessages() {
         return SpongyTowns.getMessages().getPermissions();
     }
 
-    @Provides
+    @Provides @Singleton
     public TownMessages provideTownMessages() {
         return SpongyTowns.getMessages().getTown();
     }
 
-    @Provides
+    @Provides @Singleton
     public LastTaskRunConfig provideLastTasks() {
         return SpongyTowns.getLastTasks();
     }
 
-    @Provides
+    @Provides @Singleton
+    public ResidentMessages provideResidentMessages() {
+        return SpongyTowns.getMessages().getRes();
+    }
+
+    @Provides @Singleton
     public ConfigManager<MainConfig> provideMainConfig() {
         return new ConfigManager<>(MainConfig.class,
                 SpongyTowns.getInstance().getConfigDir(),
@@ -58,7 +61,7 @@ public class SpongyTownsModule extends AbstractModule {
                 SpongyTowns.getInstance());
     }
 
-    @Provides
+    @Provides @Singleton
     public ConfigManager<MessagesCategory> provideMessages() {
         return new ConfigManager<>(MessagesCategory.class,
                 SpongyTowns.getInstance().getConfigDir(),
@@ -68,7 +71,7 @@ public class SpongyTownsModule extends AbstractModule {
                 SpongyTowns.getInstance());
     }
 
-    @Provides
+    @Provides @Singleton
     public ConfigManager<LastTaskRunConfig> provideTaskRunsConfig() {
         return new ConfigManager<>(LastTaskRunConfig.class,
                 SpongyTowns.getInstance().getConfigDir(),
@@ -78,7 +81,7 @@ public class SpongyTownsModule extends AbstractModule {
                 SpongyTowns.getInstance());
     }
 
-    @Provides
+    @Provides @Singleton
     public StorageManager provideStorageManager() {
         return new StorageManager(SpongyTowns.getConfig().getSqlURL());
     }

@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Created by Frani on 14/03/2018.
  */
-public class BaseCommands {
+public abstract class BaseCommands {
 
     public static Map<String, CommandSpec> commands = Maps.newHashMap();
     public static Optional<CommandMapping> mapping = Optional.empty();

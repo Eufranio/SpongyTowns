@@ -1,6 +1,5 @@
 package io.github.eufranio.spongytowns.config;
 
-import com.google.inject.Singleton;
 import lombok.Getter;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -9,7 +8,6 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  * Created by Frani on 27/01/2018.
  */
 @Getter
-@Singleton
 @ConfigSerializable
 public class MainConfig {
 
@@ -20,9 +18,18 @@ public class MainConfig {
     public boolean economyEnabled = false;
 
     @Setting
-    public int daysInactiveBeforePurge = 30;
+    public int daysInactiveBeforePurge = 90;
+
+    @Setting
+    public int frozenDaysBeforePurge = 7;
+
+    @Setting
+    public int dueDaysToFreezeClaim = 7;
 
     @Setting
     public int taxApplyHours = -1;
+
+    @Setting(comment = "Should SpongyTowns show a message when entering a claim?")
+    public boolean useGreetingMessage = true;
 
 }

@@ -1,6 +1,5 @@
 package io.github.eufranio.spongytowns.commands.town;
 
-import io.github.eufranio.spongytowns.display.Visual;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;

@@ -16,6 +16,7 @@ public class DataKey<R> {
         this.clazz = clazz;
     }
 
+    @SuppressWarnings("unchecked")
     public <R> R getDefaultInstance() {
         try {
             return (R) clazz.newInstance();

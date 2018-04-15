@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.EconomyMessages;
 import io.github.eufranio.spongytowns.display.TownMessages;
+import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.permission.Options;
 import io.github.eufranio.spongytowns.towns.Town;
-import io.github.eufranio.spongytowns.towns.TownClaim;
 import io.github.eufranio.spongytowns.util.Util;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -17,6 +17,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.service.economy.transaction.ResultType;
 import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
@@ -38,7 +39,7 @@ public class CreateCommand implements CommandExecutor {
         UUID uuid = Util.getPlayerOrTarget(sender, context, "create");
         Player player = (Player) sender;
         Location<World> location = player.getLocation();
-        Optional<TownClaim> claimAt = SpongyTowns.getManager().getClaimAt(location);
+        Optional<ClaimBlock> claimAt = SpongyTowns.getManager().getClaimBlockAt(location);
         if (claimAt.isPresent()) {
             Text msg = TownMessages.getInstance().ALREADY_CLAIMED.apply(
                     ImmutableMap.of("town", claimAt.get().getParent().getInfoHover())
@@ -57,15 +58,14 @@ public class CreateCommand implements CommandExecutor {
             Account account = s.getOrCreateAccount(player.getUniqueId()).get();
             TransactionResult r = account.withdraw(s.getDefaultCurrency(), new BigDecimal(price), Sponge.getCauseStackManager().getCurrentCause());
 
-            switch (r.getResult()) {
-                case ACCOUNT_NO_FUNDS:
-                    Util.error(EconomyMessages.getInstance().NO_FUNDS.apply(ImmutableMap.of(
-                            "price", price
-                    )).toText());
-                default:
-                    Util.error(EconomyMessages.getInstance().ERROR_WITHDRAW.apply(ImmutableMap.of(
-                            "reason", r.getResult().name()
-                    )).toText());
+            if (r.getResult() == ResultType.ACCOUNT_NO_FUNDS) {
+                Util.error(EconomyMessages.getInstance().NO_FUNDS.apply(ImmutableMap.of(
+                        "price", price
+                )).toText());
+            } else if (r.getResult() != ResultType.SUCCESS) {
+                Util.error(EconomyMessages.getInstance().ERROR_WITHDRAW.apply(ImmutableMap.of(
+                        "reason", r.getResult().name()
+                )).toText());
             }
         }
 

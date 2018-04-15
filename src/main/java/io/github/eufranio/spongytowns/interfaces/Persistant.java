@@ -27,9 +27,13 @@ public interface Persistant<T extends BaseDaoEnabled<T, UUID>> extends Identifia
 
     Map<String, String> getCustomData();
 
-    default <R> R get(DataKey<R> key) {
+    default <R extends SerializableObject> R get(DataKey<? extends R> key) {
         String str = this.getCustomData().get(key.getKey());
-        if (str == null) return key.getDefaultInstance();
+        if (str == null) {
+            R obj = key.getDefaultInstance();
+            this.writeCustomData(key, obj);
+            return obj;
+        }
         return SerializableObject.read(str, key.getClazz());
     }
 

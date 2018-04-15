@@ -1,8 +1,8 @@
 package io.github.eufranio.spongytowns.permission;
 
 import io.github.eufranio.spongytowns.SpongyTowns;
+import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.towns.PlotClaim;
-import io.github.eufranio.spongytowns.towns.TownClaim;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
@@ -27,14 +27,16 @@ public class ClaimContextCalculator implements ContextCalculator<Subject> {
         final Optional<CommandSource> commandSource = calculable.getCommandSource();
         if (commandSource.isPresent() && commandSource.get() instanceof Player) {
             final Player player = (Player) commandSource.get();
-            Optional<TownClaim> townClaim = SpongyTowns.getManager().getClaimAt(player.getLocation());
-            if (townClaim.isPresent()) {
+            Optional<ClaimBlock> block = SpongyTowns.getManager().getClaimBlockAt(player.getLocation());
+            if (block.isPresent()) {
                 accumulator.add(IN_CLAIM);
-                accumulator.add(new Context(TOWN, townClaim.get().getParent().getUniqueId().toString()));
-
-                SpongyTowns.getManager().getPlotAt(player.getLocation()).ifPresent(plot ->
-                        accumulator.add(new Context(PLOT, plot.get().getParent().getUniqueId().toString()))
-                );
+                boolean isPlot = block.get() instanceof PlotClaim;
+                if (isPlot) {
+                    accumulator.add(new Context(TOWN, block.get().getParent().getParent().getUniqueId().toString()));
+                    accumulator.add(new Context(PLOT, block.get().getParent().getUniqueId().toString()));
+                } else {
+                    accumulator.add(new Context(TOWN, block.get().getParent().getUniqueId().toString()));
+                }
             } else {
                 accumulator.add(NOT_IN_CLAIM);
             }
@@ -53,7 +55,7 @@ public class ClaimContextCalculator implements ContextCalculator<Subject> {
         }
 
         final Player player = (Player) commandSource.get();
-        Optional<TownClaim> claim = SpongyTowns.getManager().getClaimAt(player.getLocation());
+        Optional<ClaimBlock> claim = SpongyTowns.getManager().getClaimBlockAt(player.getLocation());
         if (context.equals(IN_CLAIM) && !claim.isPresent()) {
             return false;
         }

@@ -13,6 +13,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,7 +27,7 @@ public class InfoCommand implements CommandExecutor {
             Util.error("Only playrs can run this command!");
         }
 
-        String type = context.<String>getOne("town or plot").get();
+        String type = context.<String>getOne("town/plot").get();
         Map<UUID, Claim> map = type.equalsIgnoreCase("town") ?
                 SpongyTowns.getManager().getTowns() :
                 type.equalsIgnoreCase("plot") ?
@@ -34,8 +35,14 @@ public class InfoCommand implements CommandExecutor {
                         null;
         if (map == null) Util.error("Specify \"town\" or \"plot\" in the command!");
 
+        Optional<Claim> opt = context.getOne("claim");
+        if (opt.isPresent()) {
+            opt.get().sendBankInfo(sender);
+            return CommandResult.success();
+        }
+
         if (!sender.getActiveContexts().contains(ClaimContextCalculator.IN_CLAIM)) {
-            Util.error("You're not on a claim!");
+            Util.error("You're not inside a claim, either go on a claim or specify one in the command!");
         }
 
         String contextKey;
@@ -53,7 +60,7 @@ public class InfoCommand implements CommandExecutor {
         if (uuid == null) Util.error("Couldn't get the UUID of your claim!");
 
         Claim claim = map.get(UUID.fromString(uuid));
-        claim.getBank().getBankInfo()
+        claim.sendBankInfo(sender);
 
         return CommandResult.success();
     }

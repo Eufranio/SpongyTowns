@@ -4,8 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.PermissionMessages;
 import io.github.eufranio.spongytowns.display.TownMessages;
+import io.github.eufranio.spongytowns.interfaces.Claim;
+import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.permission.Permissions;
-import io.github.eufranio.spongytowns.towns.Town;
+import io.github.eufranio.spongytowns.towns.Plot;
+import io.github.eufranio.spongytowns.towns.PlotClaim;
 import io.github.eufranio.spongytowns.towns.TownClaim;
 import io.github.eufranio.spongytowns.util.Util;
 import org.spongepowered.api.command.CommandException;
@@ -35,22 +38,28 @@ public class UnclaimCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         Location<World> location = player.getLocation();
-        Optional<TownClaim> claim = SpongyTowns.getManager().getClaimAt(location);
-        if (!claim.isPresent()) {
+        Optional<ClaimBlock> opt = SpongyTowns.getManager().getClaimBlockAt(location);
+        if (!opt.isPresent()) {
             Util.error(TownMessages.getInstance().CHUNK_NOT_CLAIMED.toText());
         }
 
-        if (!claim.get().getParent().getOwner().equals(player.getUniqueId()) && !player.hasPermission(Permissions.UNCLAIM_ADMIN)) {
-            Util.error(PermissionMessages.getInstance().NO_PERMISSION_CLAIM.apply(ImmutableMap.of("town", claim.get().getParent().getInfoHover())).toText());
+        ClaimBlock b = opt.get();
+        if (b instanceof PlotClaim) {
+            b = b.getParent().getParent().getBlockAt(location).get();
         }
 
-        if (claim.get().getParent().getBlocks().size() == 1) {
+        if (!b.getParent().getOwner().equals(player.getUniqueId()) && !player.hasPermission(Permissions.UNCLAIM_ADMIN)) {
+            Util.error(PermissionMessages.getInstance().NO_PERMISSION_CLAIM.apply(ImmutableMap.of("town", b.getParent().getInfoHover())).toText());
+        }
+
+        if (b.getParent().getBlocks().size() == 1) {
+            final ClaimBlock block = b;
             sender.sendMessage(TownMessages.getInstance().UNCLAIM_LAST_CHUNK.apply(ImmutableMap.of(
-                    "town", claim.get().getParent().getInfoHover(),
+                    "town", b.getParent().getInfoHover(),
                     "button", Text.of(TextColors.RED, "[CONTINUE]").toBuilder()
                             .onHover(TextActions.showText(Text.of("Click to unclaim anyway")))
                             .onClick(TextActions.executeCallback(src -> {
-                                claim.get().getParent().remove();
+                                block.getParent().remove();
                                 sender.sendMessage(TownMessages.getInstance().UNCLAIM.toText());
                             }))
                             .build()
@@ -58,7 +67,7 @@ public class UnclaimCommand implements CommandExecutor {
             return CommandResult.success();
         }
 
-        claim.get().remove();
+        b.remove();
         sender.sendMessage(TownMessages.getInstance().UNCLAIM.toText());
         return CommandResult.success();
     }

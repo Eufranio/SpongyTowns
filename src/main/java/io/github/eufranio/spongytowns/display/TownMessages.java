@@ -47,7 +47,7 @@ public class TownMessages {
 
     @Setting
     public TextTemplate ALREADY_CLAIMED = TextTemplate.of(
-            TextColors.RED, " This chunk belongs to  ", TextTemplate.arg("town"), TextColors.RED, "!"
+            TextColors.RED, " This chunk belongs to ", TextTemplate.arg("town"), TextColors.RED, "!"
     );
 
     @Setting
@@ -116,5 +116,38 @@ public class TownMessages {
         );
 
     }
+
+    @Setting
+    public TextTemplate CLAIM_WILL_FREEZE = TextTemplate.of(
+        TextColors.RED, "The Claim ", TextTemplate.arg("claim"), " has no money and will be freezed in ",
+            TextTemplate.arg("days"), " days! You won't be able to interact with it while it's frozen. " +
+                    "Pay your taxes if you don't want that to happen!"
+    );
+
+    @Setting
+    public TextTemplate CLAIM_HAS_FROZEN = TextTemplate.of(
+            TextColors.RED, "The Claim ", TextTemplate.arg("claim"), " has no money and is now frozen. You cannot interact with it " +
+                    "unless you pay it's taxes. It will be completely deleted in ", TextTemplate.arg("days"), " days!"
+    );
+
+    @Setting
+    public TextTemplate CLAIM_HAS_EXPIRED = TextTemplate.of(
+            TextColors.RED, "The Claim ", TextTemplate.arg("claim"), " has not paid it's taxes and was deleted!"
+    );
+
+    @Setting
+    public TextTemplate UNKNOWN_CLAIM = TextTemplate.of(
+            TextColors.RED, "If you're not inside a claim, you must specify one in the command!"
+    );
+
+    @Setting
+    public TextTemplate ENTERING_CLAIM = TextTemplate.of(
+            TextColors.GREEN, "You're now entering ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate CHANGED_OWNER = TextTemplate.of(
+            TextColors.GREEN, "Successfully changed owner of ", TextTemplate.arg("claim"), "!"
+    );
 
 }

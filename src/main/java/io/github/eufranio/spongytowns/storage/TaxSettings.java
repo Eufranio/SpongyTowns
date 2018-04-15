@@ -22,9 +22,6 @@ public class TaxSettings extends SerializableObject<TaxSettings> {
     public int dueDays = 0;
 
     @Setting
-    public int remainingDays = -1;
-
-    @Setting
     public int remainingFrozenDays = -1;
 
     @Setting

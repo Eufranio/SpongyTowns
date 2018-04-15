@@ -1,10 +1,6 @@
 package io.github.eufranio.spongytowns.display;
 
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import io.github.eufranio.spongytowns.SpongyTowns;
-import lombok.Getter;
-import lombok.Setter;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.text.TextTemplate;
@@ -13,7 +9,6 @@ import org.spongepowered.api.text.format.TextColors;
 /**
  * Created by Frani on 24/02/2018.
  */
-@Singleton
 @ConfigSerializable
 public class PermissionMessages {
 
@@ -35,6 +30,31 @@ public class PermissionMessages {
     @Setting
     public TextTemplate NO_PERMISSION_UNCLAIM = TextTemplate.of(
             TextColors.RED, "Only the owner of ", TextTemplate.arg("town"), TextColors.RED, " can unclaim this chunk!"
+    );
+
+    @Setting
+    public TextTemplate CANNOT_BUILD = TextTemplate.of(
+            TextColors.RED, "You don't have permission to build here, this belongs to ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate ENTITY_PROTECTED = TextTemplate.of(
+            TextColors.RED, "This entity belongs to ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate CANNOT_INTERACT_BLOCK = TextTemplate.of(
+            TextColors.RED, "You don't have permission to interact here, this belongs to ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate CANNOT_ENTER = TextTemplate.of(
+            TextColors.RED, "You don't have permission to enter in ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate ONLY_OWNERS = TextTemplate.of(
+            TextColors.RED, "Only the owner of ", TextTemplate.arg("claim"), " can do that!"
     );
 
 }

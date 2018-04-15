@@ -28,6 +28,8 @@ public class Options {
 
     public static OptionEntry<Integer> DAILY_TAX_PLOTCLAIM = OptionEntry.of("spongytowns.tax.daily.plotclaim", 10);
 
+    public static OptionEntry<Integer> DAILY_TAX_RESIDENT = OptionEntry.of("spongytowns.tax.daily.resident", 15);
+
     @Getter
     public static class OptionEntry<T> {
 

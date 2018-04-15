@@ -27,12 +27,24 @@ public class EconomyMessages {
 
     @Setting
     public TextTemplate NO_FUNDS = TextTemplate.of(
-            TextColors.RED, "You don't have enough money to do this! ($", TextTemplate.arg("price").color(TextColors.GOLD), ")"
+            TextColors.RED, "This account doesn't have enough money to do this! ($", TextTemplate.arg("price").color(TextColors.GOLD), ")"
     );
 
     @Setting
     public TextTemplate ERROR_WITHDRAW = TextTemplate.of(
             TextColors.RED, "Error on withdraw: ", TextTemplate.arg("reason")
+    );
+
+    @Setting
+    public TextTemplate SUCESSFULL_DEPOSIT = TextTemplate.of(
+            TextColors.GREEN, "You successfully deposited ", TextTemplate.arg("amount").color(TextColors.GOLD),
+            " to the bank!"
+    );
+
+    @Setting
+    public TextTemplate SUCESSFULL_WITHDRAW = TextTemplate.of(
+            TextColors.GREEN, "You have successfully withdrawn ", TextTemplate.arg("amount").color(TextColors.GOLD),
+            " from the bank!"
     );
 
     @Getter
@@ -43,7 +55,16 @@ public class EconomyMessages {
     public static class Reasons {
 
         @Setting
-        public TextTemplate CLAIM = TextTemplate.of("Claim");
+        public TextTemplate CLAIM = TextTemplate.of(TextColors.YELLOW, "CLAIM");
+
+        @Setting
+        public TextTemplate TAX = TextTemplate.of(TextColors.RED, "TAX");
+
+        @Setting
+        public TextTemplate DEPOSIT = TextTemplate.of(TextColors.GREEN, "DEPOSIT");
+
+        @Setting
+        public TextTemplate WITHDRAW = TextTemplate.of(TextColors.RED, "WITHDRAW");
 
     }
 

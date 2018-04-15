@@ -4,14 +4,14 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.Lists;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.PermissionMessages;
-import io.github.eufranio.spongytowns.interfaces.Bank;
 import io.github.eufranio.spongytowns.interfaces.Claim;
 import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.permission.Options;
-import io.github.eufranio.spongytowns.towns.Town;
 import io.github.eufranio.spongytowns.towns.TownClaim;
 import net.minecraft.block.state.IBlockProperties;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -20,12 +20,18 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.data.property.block.MatterProperty;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Identifiable;
@@ -33,7 +39,6 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +90,10 @@ public class Util {
         throw new CommandException(msg);
     }
 
+    public static void error(TextTemplate template) throws CommandException {
+        error(template.toText());
+    }
+
     public static int getIntOption(Subject subject, Options.OptionEntry<Integer> entry) {
         return Integer.parseInt(subject.getOption(entry.getOption()).orElse(entry.getDefaultValue().toString()));
     }
@@ -93,7 +102,7 @@ public class Util {
         Chunk chunk = location.getExtent().loadChunk(location.getChunkPosition(), true).get();
         for (Direction d : CARDINAL_SET) {
             Chunk c2 = chunk.getNeighbor(d, true).get();
-            Optional<TownClaim> claim = SpongyTowns.getManager().getClaimAt(c2.getPosition(), c2.getWorld().getUniqueId());
+            Optional<TownClaim> claim = SpongyTowns.getManager().getClaimBlockAt(c2.getPosition(), c2.getWorld().getUniqueId());
             if (claim.isPresent()) return claim;
         }
         return Optional.empty();
@@ -114,7 +123,7 @@ public class Util {
         for (int x = -distance; x < distance; x++) {
             for (int z = -distance; z < distance; z++) {
                 Vector3i position = new Vector3i(location.getChunkPosition().getX() + x, 0, location.getChunkPosition().getZ() + z);
-                SpongyTowns.getManager().getClaimAt(position, location.getExtent().getUniqueId()).ifPresent(blocks::add);
+                SpongyTowns.getManager().getClaimBlockAt(position, location.getExtent().getUniqueId()).ifPresent(blocks::add);
             }
         }
         return blocks;
@@ -166,6 +175,45 @@ public class Util {
             return (Boolean) isOpaqueField.invoke(state);
         } catch (Exception e) {}
         return false;
+    }
+
+    // from GP
+    public static User getEventUser(Event event) {
+        final Cause cause = event.getCause();
+        final EventContext context = event.getContext();
+        User user = null;
+            user = cause.first(User.class).orElse(null);
+            if (user != null && user instanceof EntityPlayer && user.getName().startsWith("[")) {
+                user = null;
+            }
+
+        if (user == null) {
+            // Always use owner for ticking TE's
+            // See issue MinecraftPortCentral/GriefPrevention#610 for more information
+            if (cause.root() instanceof TileEntity) {
+                user = context.get(EventContextKeys.OWNER)
+                        .orElse(context.get(EventContextKeys.NOTIFIER)
+                                .orElse(context.get(EventContextKeys.CREATOR)
+                                        .orElse(null)));
+            } else {
+                user = context.get(EventContextKeys.NOTIFIER)
+                        .orElse(context.get(EventContextKeys.OWNER)
+                                .orElse(context.get(EventContextKeys.CREATOR)
+                                        .orElse(null)));
+            }
+        }
+
+        if (user == null) {
+            if (event instanceof ExplosionEvent) {
+                // Check igniter
+                final Living living = context.get(EventContextKeys.IGNITER).orElse(null);
+                if (living != null && living instanceof User) {
+                    user = (User) living;
+                }
+            }
+        }
+
+        return user;
     }
 
 }

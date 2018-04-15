@@ -12,6 +12,7 @@ public class Managers {
         SpongyTowns.provide(StorageManager.class);
         ListenerManager.registerListeners(SpongyTowns.getInstance());
         TownCommands.registerCommands(SpongyTowns.getInstance());
+        SpongyTowns.provide(TaskManager.class).init(SpongyTowns.getInstance());
     }
 
 }

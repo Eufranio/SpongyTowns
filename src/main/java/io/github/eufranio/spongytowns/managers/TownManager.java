@@ -49,11 +49,27 @@ public class TownManager {
     @NonNull
     private List<Transaction> transactions = Lists.newArrayList();
 
-    public Optional<TownClaim> getClaimAt(Location<World> location) {
-        return townClaims.values().stream().filter(tc -> tc.getLocation().equals(location.getChunkPosition())).findFirst();
+    public Optional<Claim> getClaimAt(Location<World> location) {
+        Optional<ClaimBlock> block = this.getClaimBlockAt(location);
+        return block.map(ClaimBlock::getParent);
     }
 
-    public Optional<TownClaim> getClaimAt(Vector3i chunk, UUID world) {
+    public Optional<ClaimBlock> getClaimBlockAt(Location<World> location) {
+        Optional<ClaimBlock> opt = plotClaims.values().stream()
+                .filter(tc -> tc.getLocation().equals(location.getChunkPosition()))
+                .map(ClaimBlock.class::cast)
+                .findFirst();
+        if (opt.isPresent()) {
+            return opt;
+        } else {
+            return townClaims.values().stream()
+                    .filter(tc -> tc.getLocation().equals(location.getChunkPosition()))
+                    .map(ClaimBlock.class::cast)
+                    .findFirst();
+        }
+    }
+
+    public Optional<TownClaim> getClaimBlockAt(Vector3i chunk, UUID world) {
         return townClaims.values().stream().filter(tc -> tc.getLocation().equals(chunk) && tc.getWorld().equals(world)).findFirst();
     }
 
@@ -65,6 +81,13 @@ public class TownManager {
         List<Claim> claims = Lists.newArrayList(this.getTowns().values());
         claims.addAll(this.getPlots().values());
         return claims;
+    }
+
+    public Claim getClaim(UUID uuid) {
+        return this.getClaims().stream()
+                .filter(c -> c.getUniqueId().equals(uuid))
+                .findFirst()
+                .orElse(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,6 +113,10 @@ public class TownManager {
 
     public Optional<Claim> getTown(String name) {
         return this.towns.values().stream().filter(t -> t.getName().equalsIgnoreCase(name)).findFirst();
+    }
+
+    public Optional<Claim> getPlot(String name) {
+        return this.plots.values().stream().filter(p -> p.getName().equalsIgnoreCase(name)).findFirst();
     }
 
     public Optional<Town> getTown(UUID owner) {

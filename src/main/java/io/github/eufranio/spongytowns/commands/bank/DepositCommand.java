@@ -5,7 +5,6 @@ import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.BankMessages;
 import io.github.eufranio.spongytowns.display.EconomyMessages;
 import io.github.eufranio.spongytowns.display.TownMessages;
-import io.github.eufranio.spongytowns.interfaces.Bank;
 import io.github.eufranio.spongytowns.interfaces.Claim;
 import io.github.eufranio.spongytowns.util.Util;
 import org.spongepowered.api.command.CommandException;
@@ -20,9 +19,9 @@ import org.spongepowered.api.text.Text;
 import java.util.Optional;
 
 /**
- * Created by Frani on 14/03/2018.
+ * Created by Frani on 12/04/2018.
  */
-public class WithdrawCommand implements CommandExecutor {
+public class DepositCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource sender, CommandContext context) throws CommandException {
@@ -41,11 +40,11 @@ public class WithdrawCommand implements CommandExecutor {
             claim = opt.get();
         }
 
-        if (!claim.getOwner().equals(p.getUniqueId())) {
-            Util.error(BankMessages.getInstance().ONLY_OWNER_WITHDRAW);
+        if (!claim.getMembers().contains(p.getUniqueId()) && !claim.getOwner().equals(p.getUniqueId())) {
+            Util.error(BankMessages.getInstance().ONLY_MEMBERS_DEPOSIT);
         }
 
-        ResultType result = claim.getBank().withdraw(Bank.player(p.getUniqueId()), amount, EconomyMessages.getInstance().getReasons().WITHDRAW.toText(), p);
+        ResultType result = claim.getBank().deposit(p, amount, EconomyMessages.getInstance().getReasons().DEPOSIT.toText());
         if (result == ResultType.ACCOUNT_NO_FUNDS) {
             Util.error(EconomyMessages.getInstance().NO_FUNDS.apply(ImmutableMap.of(
                     "price", amount
@@ -56,7 +55,7 @@ public class WithdrawCommand implements CommandExecutor {
             )).toText());
         }
 
-        sender.sendMessage(EconomyMessages.getInstance().SUCESSFULL_WITHDRAW.apply(ImmutableMap.of(
+        sender.sendMessage(EconomyMessages.getInstance().SUCESSFULL_DEPOSIT.apply(ImmutableMap.of(
                 "amount", amount
         )).toText());
 

@@ -1,15 +1,11 @@
 package io.github.eufranio.spongytowns;
 
 import com.google.inject.*;
-import io.github.eufranio.spongytowns.commands.TownCommands;
 import io.github.eufranio.spongytowns.config.LastTaskRunConfig;
 import io.github.eufranio.spongytowns.guice.SpongyTownsModule;
 import io.github.eufranio.spongytowns.managers.*;
 import io.github.eufranio.spongytowns.config.MainConfig;
 import io.github.eufranio.spongytowns.config.MessagesCategory;
-import io.github.eufranio.spongytowns.display.BankMessages;
-import io.github.eufranio.spongytowns.display.PermissionMessages;
-import io.github.eufranio.spongytowns.display.TownMessages;
 import io.github.eufranio.spongytowns.permission.ClaimContextCalculator;
 import io.github.eufranio.spongytowns.util.Util;
 import lombok.Getter;
@@ -18,6 +14,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -51,26 +48,36 @@ public class SpongyTowns {
     @Getter
     public File configDir;
 
-    @Inject
-    public void setInjector(Injector injector) {
-        this.injector = injector.createChildInjector(new SpongyTownsModule());
-    }
-
     @Getter
     private Injector injector;
 
-    private static Account SERVER_ACCOUNT;
+    @Getter
+    public static Account SERVER_ACCOUNT;
+
+    @Getter
+    public static SpongyTowns instance;
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
+        System.setProperty("com.j256.ormlite.logger.type", "LOCAL");
+        System.setProperty("com.j256.ormlite.logger.level", "ERROR");
+        injector = Guice.createInjector(new SpongyTownsModule());
+        instance = this;
         Sponge.getServiceManager().provideUnchecked(PermissionService.class).registerContextCalculator(new ClaimContextCalculator());
         Managers.init();
         SERVER_ACCOUNT = getEconomyService().getOrCreateAccount(Util.SERVER_UUID).get();
     }
 
     @Listener
+    public void onReload(GameReloadEvent event) {
+        getInjector().getInstance(Key.get(new TypeLiteral<ConfigManager<MainConfig>>(){})).load();
+        getInjector().getInstance(Key.get(new TypeLiteral<ConfigManager<MessagesCategory>>(){})).load();
+    }
+
+    @Listener
     public void onServerStopping(GameStoppingServerEvent e) {
         getStorage().saveTowns();
+        getInstance().getInjector().getInstance(Key.get(new TypeLiteral<ConfigManager<LastTaskRunConfig>>(){})).cancel();
     }
 
     public static MainConfig getConfig() {
@@ -97,10 +104,6 @@ public class SpongyTowns {
         return provide(StorageManager.class);
     }
 
-    public static Account getServerAccount() {
-        return SERVER_ACCOUNT;
-    }
-
     public static void log(String msg) {
         getInstance().logger.info(msg);
     }
@@ -113,10 +116,5 @@ public class SpongyTowns {
     public static <T> T provide(Class<T> clazz) {
         return getInstance().injector.getInstance(clazz);
     }
-
-    public static SpongyTowns getInstance() {
-        return provide(SpongyTowns.class);
-    }
-
 
 }

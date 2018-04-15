@@ -88,8 +88,64 @@ public class TownCommands extends BaseCommands {
                 .build();
         commands.put("/town info ", info);
 
+        CommandSpec setOwner = CommandSpec.builder()
+                .description(Text.of("Changes the owner of a specific claim"))
+                .permission(Permissions.SET_OWNER)
+                .arguments(
+                        GenericArguments.uuid(Text.of("uuid")),
+                        GenericArguments.optional(
+                                Arguments.claim(Text.of("claim"))
+                        )
+                )
+                .executor(new SetOwnerCommand())
+                .build();
+        commands.put("/town setOwner ", setOwner);
+
+        CommandSpec invite = CommandSpec.builder()
+                .description(Text.of("Invites a player to your town"))
+                .permission(Permissions.INVITE)
+                .arguments(
+                        Arguments.resident(Text.of("resident")),
+                        GenericArguments.optional(
+                                Arguments.claim(Text.of("claim"))
+                        )
+                )
+                .executor(new InviteCommand())
+                .build();
+        commands.put("/town invite ", invite);
+
+        CommandSpec invites = CommandSpec.builder()
+                .description(Text.of("Checks your in invites to towns/plots"))
+                .permission(Permissions.VIEW_INVITES)
+                .arguments(
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        Arguments.resident(Text.of("resident")),
+                                        Permissions.VIEW_INVITES_OTHER
+                                )
+                        )
+                )
+                .executor(new InvitesCommand())
+                .build();
+        commands.put("/town invites ", invites);
+
+        CommandSpec accept = CommandSpec.builder()
+                .description(Text.of("Accepts invites to other claims"))
+                .permission(Permissions.ACCEPT)
+                .arguments(
+                        GenericArguments.optional(
+                                GenericArguments.firstParsing(
+                                        GenericArguments.uuid(Text.of("uuid")),
+                                        Arguments.claim(Text.of("claim"))
+                                )
+                        )
+                )
+                .executor(new AcceptCommand())
+                .build();
+        commands.put("/town accept ", accept);
+
         CommandSpec town = CommandSpec.builder()
-                .permission("spongytowns.command.town.main")
+                .permission(Permissions.MAIN_COMMAND)
                 .executor((sender, context) -> {
                     List<Text> text = Lists.newArrayList();
 
@@ -101,6 +157,21 @@ public class TownCommands extends BaseCommands {
                                 .onHover(TextActions.showText(spec.getShortDescription(sender).get()))
                                 .build())
                     );
+
+                    // manually adding complex subcommands
+                    text.add(Text.of(
+                            TextColors.GRAY, "* ",
+                            TextColors.YELLOW, "/town bank ...")
+                            .toBuilder()
+                            .onHover(TextActions.showText(Text.of("Main town bank related commands")))
+                            .build());
+
+                    text.add(Text.of(
+                            TextColors.GRAY, "* ",
+                            TextColors.YELLOW, "/town res ...")
+                            .toBuilder()
+                            .onHover(TextActions.showText(Text.of("Main resident related commands")))
+                            .build());
 
                     PaginationList.builder()
                             .contents(text)
@@ -119,9 +190,14 @@ public class TownCommands extends BaseCommands {
                 .child(create, "create", "new", "c")
                 .child(delete, "delete", "d")
                 .child(claim, "claim")
-                .child(unclaim, "unclaim")
+                .child(unclaim, "unclaim", "u")
                 .child(info, "info")
-                .child(BankCommands.registerCommands(), "bank")
+                .child(setOwner, "setOwner")
+                .child(invite, "invite")
+                .child(invites, "invites")
+                .child(accept, "accept")
+                .child(BankCommands.registerCommands(), "bank", "b")
+                .child(ResidentCommands.registerCommands(), "res", "resident", "r")
                 .build();
 
         mapping = Sponge.getCommandManager().register(plugin, town, "town", "t", "city");
