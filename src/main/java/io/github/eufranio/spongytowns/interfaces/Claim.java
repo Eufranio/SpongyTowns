@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import io.github.eufranio.spongytowns.SpongyTowns;
 import io.github.eufranio.spongytowns.display.TownMessages;
 import io.github.eufranio.spongytowns.permission.Options;
+import io.github.eufranio.spongytowns.permission.Resident;
 import io.github.eufranio.spongytowns.towns.Town;
 import io.github.eufranio.spongytowns.util.InfoBuilder;
 import io.github.eufranio.spongytowns.util.Util;

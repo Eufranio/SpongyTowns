@@ -7,6 +7,7 @@ import io.github.eufranio.spongytowns.display.PermissionMessages;
 import io.github.eufranio.spongytowns.interfaces.Claim;
 import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.permission.Options;
+import io.github.eufranio.spongytowns.towns.PlotClaim;
 import io.github.eufranio.spongytowns.towns.TownClaim;
 import net.minecraft.block.state.IBlockProperties;
 import net.minecraft.block.state.IBlockState;
@@ -104,6 +105,16 @@ public class Util {
             Chunk c2 = chunk.getNeighbor(d, true).get();
             Optional<TownClaim> claim = SpongyTowns.getManager().getClaimBlockAt(c2.getPosition(), c2.getWorld().getUniqueId());
             if (claim.isPresent()) return claim;
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<ClaimBlock> getClosestPlot(Location<World> location) {
+        Chunk chunk = location.getExtent().loadChunk(location.getChunkPosition(), true).get();
+        for (Direction d : CARDINAL_SET) {
+            Chunk c2 = chunk.getNeighbor(d, true).get();
+            Optional<PlotClaim> claim = SpongyTowns.getManager().getPlotAt(c2.getPosition(), c2.getWorld().getUniqueId());
+            if (claim.isPresent()) return claim.map(ClaimBlock.class::cast);
         }
         return Optional.empty();
     }

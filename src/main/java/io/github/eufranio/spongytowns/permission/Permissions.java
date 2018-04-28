@@ -9,7 +9,11 @@ public class Permissions {
 
     public static String CREATE_TOWN = "spongytowns.user.town.create";
 
+    public static String CREATE_PLOT = "spongytowns.user.plot.create";
+
     public static String DELETE_TOWN = "spongytowns.user.town.delete";
+
+    public static String DELETE_PLOT = "spongytowns.user.plot.delete";
 
     public static String DELETE_TOWN_OTHERS = "spongytowns.user.town.delete.others";
 
@@ -44,5 +48,11 @@ public class Permissions {
     public static String VIEW_INVITES_OTHER = "spongytowns.admin.town.invites";
 
     public static String ACCEPT = "spongytowns.user.town.accept";
+
+    public static String DENY = "spongytowns.user.town.deny";
+
+    public static String KICK = "spongytowns.user.town.kick";
+
+    public static String KICK_ADMIN = "spongytowns.admin.town.kick";
 
 }

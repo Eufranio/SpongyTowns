@@ -1,6 +1,7 @@
 package io.github.eufranio.spongytowns.managers;
 
 import io.github.eufranio.spongytowns.SpongyTowns;
+import io.github.eufranio.spongytowns.commands.PlotCommands;
 import io.github.eufranio.spongytowns.commands.TownCommands;
 
 /**
@@ -12,6 +13,7 @@ public class Managers {
         SpongyTowns.provide(StorageManager.class);
         ListenerManager.registerListeners(SpongyTowns.getInstance());
         TownCommands.registerCommands(SpongyTowns.getInstance());
+        PlotCommands.registerCommands();
         SpongyTowns.provide(TaskManager.class).init(SpongyTowns.getInstance());
     }
 

@@ -77,6 +77,10 @@ public class TownManager {
         return plotClaims.values().stream().filter(pc -> pc.getLocation().equals(location.getChunkPosition())).findFirst();
     }
 
+    public Optional<PlotClaim> getPlotAt(Vector3i chunk, UUID world) {
+        return plotClaims.values().stream().filter(pc -> pc.getLocation().equals(chunk) && pc.getWorld().equals(world)).findFirst();
+    }
+
     public List<Claim> getClaims() {
         List<Claim> claims = Lists.newArrayList(this.getTowns().values());
         claims.addAll(this.getPlots().values());
@@ -90,25 +94,16 @@ public class TownManager {
                 .orElse(null);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Optional<T> getClaimById(Class<T> clazz, int id) {
-        Map map;
-        if (clazz == Town.class) {
-            map = this.towns;
-        } else if (clazz == TownClaim.class) {
-            map = this.townClaims;
-        } else if (clazz == Plot.class) {
-            map = this.plots;
-        } else {
-            map = this.plotClaims;
-        }
-        return Optional.ofNullable((T) map.get(id));
-    }
-
     public Town createTown(String name, String team, Location<World> location, UUID owner) {
         Town t = Town.of(name, team, location, owner);
         t.claim(location);
         return t;
+    }
+
+    public Plot createPlot(String name, Town parent, Location<World> location, UUID owner) {
+        Plot p = Plot.of(name, parent, owner, location);
+        p.claim(location);
+        return p;
     }
 
     public Optional<Claim> getTown(String name) {

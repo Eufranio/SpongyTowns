@@ -1,4 +1,4 @@
-package io.github.eufranio.spongytowns.commands.town;
+package io.github.eufranio.spongytowns.commands.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -11,6 +11,7 @@ import io.github.eufranio.spongytowns.interfaces.Claim;
 import io.github.eufranio.spongytowns.interfaces.ClaimBlock;
 import io.github.eufranio.spongytowns.permission.Options;
 import io.github.eufranio.spongytowns.permission.Permissions;
+import io.github.eufranio.spongytowns.towns.Plot;
 import io.github.eufranio.spongytowns.towns.Town;
 import io.github.eufranio.spongytowns.towns.TownClaim;
 import io.github.eufranio.spongytowns.util.Util;
@@ -28,12 +29,18 @@ import org.spongepowered.api.world.World;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by Frani on 26/02/2018.
  */
 public class ClaimCommand implements CommandExecutor {
+
+    private boolean isPlot;
+    public ClaimCommand(boolean plot) {
+        this.isPlot = plot;
+    }
 
     @Override
     public CommandResult execute(CommandSource sender, CommandContext context) throws CommandException {
@@ -45,13 +52,24 @@ public class ClaimCommand implements CommandExecutor {
         Location<World> location = player.getLocation();
         Optional<ClaimBlock> claim = SpongyTowns.getManager().getClaimBlockAt(location);
         if (claim.isPresent()) {
-            Util.error(TownMessages.getInstance().ALREADY_CLAIMED.apply(ImmutableMap.of("town", claim.get().getParent().getInfoHover())).toText());
+            if (isPlot) {
+                if (claim.get() instanceof Plot) {
+                    Util.error(TownMessages.getInstance().ALREADY_CLAIMED.apply(ImmutableMap.of(
+                            "town", claim.get().getParent().getInfoHover()
+                    )).toText());
+                }
+            } else {
+                Util.error(TownMessages.getInstance().ALREADY_CLAIMED.apply(ImmutableMap.of(
+                        "town", claim.get().getParent().getInfoHover()
+                )).toText());
+            }
         }
 
         boolean outpost = false;
-        Town parent = context.<Town>getOne("town").orElse(null);
-        if (parent == null) { // if no town was supplied in the command, handle nearest
-            TownClaim closestClaim = Util.getClosestClaim(location).orElse(null);
+        Claim parent = context.<Claim>getOne("claim").orElse(null);
+        if (parent == null || isPlot) { // if no claim was supplied in the command, handle nearest
+            Function<Location<World>, Optional<? extends ClaimBlock>> f = isPlot ? Util::getClosestClaim : Util::getClosestPlot;
+            ClaimBlock closestClaim = f.apply(location).orElse(null);
             if (closestClaim == null) {
                 Util.error(TownMessages.getInstance().OUTPOST_NO_NAME.toText());
             }
@@ -80,7 +98,7 @@ public class ClaimCommand implements CommandExecutor {
         }
 
         if (SpongyTowns.isEconomyEnabled()) {
-            int price = Util.getIntOption(sender, outpost ? Options.CLAIM_COST_OUTPOST : Options.CLAIM_COST);
+            int price = Util.getIntOption(sender, this.isPlot ? Options.PLOT_CLAIM_COST : (outpost ? Options.CLAIM_COST_OUTPOST : Options.CLAIM_COST));
             ResultType r = parent.getBank().withdraw(Bank.server(), price, EconomyMessages.getInstance().getReasons().CLAIM.toText(), player);
 
             if (r == ResultType.ACCOUNT_NO_FUNDS) {

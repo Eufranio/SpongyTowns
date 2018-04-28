@@ -1,13 +1,15 @@
 package io.github.eufranio.spongytowns.commands;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.github.eufranio.spongytowns.BaseCommands;
 import io.github.eufranio.spongytowns.SpongyTowns;
+import io.github.eufranio.spongytowns.commands.common.ClaimCommand;
+import io.github.eufranio.spongytowns.commands.common.DeleteCommand;
+import io.github.eufranio.spongytowns.commands.common.InfoCommand;
+import io.github.eufranio.spongytowns.commands.common.UnclaimCommand;
 import io.github.eufranio.spongytowns.commands.town.*;
 import io.github.eufranio.spongytowns.permission.Permissions;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -19,8 +21,6 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by Frani on 27/01/2018.
@@ -42,10 +42,10 @@ public class TownCommands extends BaseCommands {
         commands.put("/town create ", create);
 
         CommandSpec delete = CommandSpec.builder()
-                .description(Text.of("Deletes the town at the chunk you're in, including all plots and claims"))
+                .description(Text.of("Deletes the specified claim, including all subclaims"))
                 .permission(Permissions.DELETE_TOWN)
                 .arguments(
-                        Arguments.town(Text.of("town")),
+                        Arguments.claim(Text.of("claim")),
                         GenericArguments.optional(
                                 GenericArguments.user(Text.of("player"))
                         )
@@ -59,10 +59,10 @@ public class TownCommands extends BaseCommands {
                 .permission(Permissions.CLAIM)
                 .arguments(
                         GenericArguments.optional(
-                                Arguments.town(Text.of("town"))
+                                Arguments.claim(Text.of("claim"))
                         )
                 )
-                .executor(new ClaimCommand())
+                .executor(new ClaimCommand(false))
                 .build();
         commands.put("/town claim ", claim);
 
@@ -82,7 +82,7 @@ public class TownCommands extends BaseCommands {
                 .description(Text.of("Shows info about the specified town (or your own one)"))
                 .permission(Permissions.INFO)
                 .arguments(GenericArguments.optional(
-                        Arguments.town(Text.of("town"))
+                        Arguments.claim(Text.of("claim"))
                 ))
                 .executor(new InfoCommand())
                 .build();
@@ -144,6 +144,37 @@ public class TownCommands extends BaseCommands {
                 .build();
         commands.put("/town accept ", accept);
 
+        CommandSpec deny = CommandSpec.builder()
+                .description(Text.of("Denies invites to a claim"))
+                .permission(Permissions.DENY)
+                .arguments(
+                        GenericArguments.optional(
+                                GenericArguments.firstParsing(
+                                        GenericArguments.uuid(Text.of("uuid")),
+                                        Arguments.claim(Text.of("claim"))
+                                )
+                        )
+                )
+                .executor(new DenyCommand())
+                .build();
+        commands.put("/town deny ", deny);
+
+        CommandSpec kick = CommandSpec.builder()
+                .description(Text.of("Kicks a specific resident from your town"))
+                .permission(Permissions.KICK)
+                .arguments(
+                        Arguments.resident(Text.of("resident")),
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        Arguments.claim(Text.of("claim")),
+                                        Permissions.KICK_ADMIN
+                                )
+                        )
+                )
+                .executor(new KickCommand())
+                .build();
+        commands.put("/town kick ", kick);
+
         CommandSpec town = CommandSpec.builder()
                 .permission(Permissions.MAIN_COMMAND)
                 .executor((sender, context) -> {
@@ -196,6 +227,8 @@ public class TownCommands extends BaseCommands {
                 .child(invite, "invite")
                 .child(invites, "invites")
                 .child(accept, "accept")
+                .child(deny, "deny")
+                .child(kick, "kick")
                 .child(BankCommands.registerCommands(), "bank", "b")
                 .child(ResidentCommands.registerCommands(), "res", "resident", "r")
                 .build();

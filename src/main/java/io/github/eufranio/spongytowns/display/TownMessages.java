@@ -21,7 +21,7 @@ public class TownMessages {
 
     @Setting
     public TextTemplate CREATE = TextTemplate.of(
-            TextColors.GREEN, " The Town ", TextTemplate.arg("town"), TextColors.GREEN, " was successfully created!"
+            TextColors.GREEN, " The claim ", TextTemplate.arg("town"), TextColors.GREEN, " was successfully created!"
     );
 
     @Setting
@@ -36,13 +36,13 @@ public class TownMessages {
 
     @Setting
     public TextTemplate ABOUT_TO_DELETE = TextTemplate.of(
-            TextColors.RED, " You're about to delete ", TextTemplate.arg("town"), TextColors.RED, " and ALL it's chunks/plots! ",
+            TextColors.RED, " You're about to delete ", TextTemplate.arg("claim"), " and ALL it's chunks/subclaims! ",
             TextTemplate.arg("button")
     );
 
     @Setting
     public TextTemplate DELETE = TextTemplate.of(
-            TextColors.RED, " You just deleted ", TextTemplate.arg("town"), TextColors.RED, " and kicked all the residents!"
+            TextColors.RED, " You just deleted ", TextTemplate.arg("claim"), TextColors.RED, " and all it's subclaims!"
     );
 
     @Setting

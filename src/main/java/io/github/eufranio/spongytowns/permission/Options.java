@@ -10,6 +10,10 @@ public class Options {
 
     public static OptionEntry<Integer> CREATION_COST = OptionEntry.of("spongytowns.cost.create", 100);
 
+    public static OptionEntry<Integer> PLOT_CREATION_COST = OptionEntry.of("spongytowns.cost.plot.create", 50);
+
+    public static OptionEntry<Integer> PLOT_CLAIM_COST = OptionEntry.of("spongytowns.cost.claim.plot", 30);
+
     public static OptionEntry<Integer> CLAIM_COST = OptionEntry.of("spongytowns.cost.claim.town", 50);
 
     public static OptionEntry<Integer> CLAIM_COST_OUTPOST = OptionEntry.of("spongytowns.cost.claim.outpost", 150);

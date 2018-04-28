@@ -1,4 +1,4 @@
-package io.github.eufranio.spongytowns.commands.town;
+package io.github.eufranio.spongytowns.commands.common;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.eufranio.spongytowns.SpongyTowns;

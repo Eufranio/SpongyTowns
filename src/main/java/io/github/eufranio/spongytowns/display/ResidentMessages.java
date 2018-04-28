@@ -94,4 +94,21 @@ public class ResidentMessages {
             TextColors.GREEN, "Successfully joined ", TextTemplate.arg("claim"), "!"
     );
 
+    @Setting
+    public TextTemplate DENIED_INVITE = TextTemplate.of(
+            TextColors.RED, "Successfully denied invite from ", TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate NOT_PART_OF_CLAIM = TextTemplate.of(
+            TextColors.RED, TextTemplate.arg("resident"), " is not part of ",
+            TextTemplate.arg("claim"), "!"
+    );
+
+    @Setting
+    public TextTemplate KICKED = TextTemplate.of(
+            TextColors.GREEN, "Successfully kicked ", TextTemplate.arg("resident").color(TextColors.GOLD),
+            " from ", TextTemplate.arg("claim"), "!"
+    );
+
 }
